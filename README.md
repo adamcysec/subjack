@@ -50,6 +50,8 @@ dev.cody.su
 dev2.twitter.com
 ```
 
+[Seclists](https://github.com/danielmiessler/SecLists/tree/master/Discovery/DNS) provides a great starting point for subdomains.
+
 ## Usage
 
 **Parameter --filepath, -f**
