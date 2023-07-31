@@ -217,15 +217,16 @@ def save_worked_urls(data, file_name, verbose):
     file_exists = os.path.exists(file_name)
     field_names = ['subdomain', 'cname', 'cname_registered', 'hijackable']
     
-    with open(file_name, 'a', encoding='utf-8', newline='') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=field_names)
+    if not len(out_data) == 0:
+        with open(file_name, 'a', encoding='utf-8', newline='') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=field_names)
+            
+            if not file_exists:
+                writer.writeheader()
+            
+            writer.writerows(out_data)
         
-        if not file_exists:
-            writer.writeheader()
-        
-        writer.writerows(out_data)
-    
-    print(f"tmp urls saved: {file_name}")
+        print(f"Results saved: {file_name}")
 
 if __name__ == "__main__":
     main()
