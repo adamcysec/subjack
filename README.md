@@ -12,7 +12,7 @@ Pass in a subdomain wordlist and subjack.py will work your wordlist in batches o
 
 Each subdomain's CNAME record is queried from the DNS. 
 
-If a CNAME record exists for the given subdomain, then the CNAME is checked for registration status from a RDAP lookup.
+If a CNAME record exists for the given subdomain, then the CNAME is checked for registration status from a RDAP lookup. RDAP tends to be more accurate than WHOIS.
 
 > 📘 **Note**
 >
