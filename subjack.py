@@ -3,11 +3,16 @@ import textwrap
 import time
 import concurrent.futures
 import dns.resolver
-import whois
+import whoisit
 import csv
 import os
 
 CONNECTIONS = 100
+
+# connect to RDAP
+if not whoisit.is_bootstrapped():
+    whoisit.bootstrap() 
+BOOTSTRAP_INFO = whoisit.save_bootstrap_data()
 
 def get_args():
     parser = argparse.ArgumentParser(
@@ -71,7 +76,6 @@ def main():
     # yay we validated all the subdomains!
     print(f"--- Validated subdomains Completed in {time.time() - start_time} seconds ---")
 
-
 def read_in_wordlist(filepath):
     """Reads in subdomain wordllist
 
@@ -108,7 +112,7 @@ def query_dns(subdomain):
     data : dict
         hijackable meta data
     """
-    
+
     cname = get_cname(subdomain)
     
     if not cname == "cname not found":
@@ -175,15 +179,17 @@ def get_whois(domain):
         Yes or No
     """
     
+    if not whoisit.is_bootstrapped():
+        whoisit.load_bootstrap_data(BOOTSTRAP_INFO)
+    
+    parts = domain.split('.')
+    domain_name = f"{(parts[-2]).strip()}.{(parts[-1]).strip()}"
+
     try:
-        whois_record = whois.whois(domain)
-        if whois_record:
-            registered = "Yes"
-        else:
-            registered = "No"
+        results = whoisit.domain(domain_name)
+        registered = "Yes"
     except Exception as e:
         # not registered
-        #e = str(e).split('\r\n')[0]
         registered = "No"
 
     return registered
