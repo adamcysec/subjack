@@ -37,11 +37,11 @@ Subjack.py by default will only output subdomains found to be hijackable. Use ve
 - filepath to wordlist
 - required : true
 
-- **Parameter --outfile, -o**
+**Parameter --outfile, -o**
 - type : str
 - file name to output
 
-- **Parameter --verbose, -v**
+**Parameter --verbose, -v**
 - type : bool
 - save verbose domain meta data to file
 
