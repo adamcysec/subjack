@@ -28,8 +28,8 @@ subjack.py requires the following dependencies:
   - `pip install argparse`
 - [dnspython](https://pypi.org/project/dnspython/)
   - `pip install dnspython`
-- [python-whois](https://pypi.org/project/python-whois/)
-  - `pip install python-whois`
+- [whoisit](https://pypi.org/project/whoisit/)
+  - `pip install whoisit`
 
 ## Installation
 
