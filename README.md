@@ -14,11 +14,11 @@ Each subdomain's CNAME record is queried from the DNS.
 
 If a CNAME record exists for the given subdomain, then the CNAME is checked for registration status from a whois lookup.
 
-> 📘 Note
+> 📘 **Note**
 >
-> Subjack.py by default will only output subdomains found to be hijackable.
+> **Subjack.py by default will only output subdomains found to be hijackable.**
 >
-> Use verbose output to save all subdomain meta data regardless of it's hijackable status. 
+> **Use verbose output to save all subdomain meta data regardless of it's hijackable status.**
 
 Subjack.py uses the concurrent module to make quick work of the wordlist.
 
@@ -35,6 +35,20 @@ subjack.py requires the following dependencies:
 
 1. git clone repository
 2. pip install dependencies
+
+## Wordlist
+
+Your wordlist should include a list of subdomains you're checking:
+
+```
+assets.cody.su
+assets.github.com
+b.cody.su
+big.example.com
+cdn.cody.su
+dev.cody.su
+dev2.twitter.com
+```
 
 ## Usage
 
