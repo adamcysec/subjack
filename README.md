@@ -19,7 +19,7 @@ Subjack.py by default will only output subdomains found to be hijackable. Use ve
 Subjack.py uses the concurrent module to make quick work of the wordlist.
 
 ## Dependencies
-<tool>.py requires the following dependencies:
+subjack.py requires the following dependencies:
 - [argparse](https://pypi.org/project/argparse/)
   - `pip install argparse`
 - [dnspython](https://pypi.org/project/dnspython/)
