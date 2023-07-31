@@ -14,7 +14,7 @@ Each subdomain's CNAME record is queried from the DNS.
 
 If a CNAME record exists for the given subdomain, then the CNAME is checked for registration status from a whois lookup.
 
-> 📘
+> 📘 Note
 >
 > Subjack.py by default will only output subdomains found to be hijackable.
 >
