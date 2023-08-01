@@ -98,7 +98,7 @@ dev2.twitter.com
 
 **Example 4**
 
-`py subjack.py -f "wordlist.txt" -o "results_02.csv" -f "C:\Users\adamd\Downloads\fingerprints.json" -v`
+`py subjack.py -f "wordlist.txt" -o "results_02.csv" -f "C:\Users\<user>\Downloads\fingerprints.json" -v`
 
 - Uses fingerprints.json from another directory
 - verbose domain data is saved
