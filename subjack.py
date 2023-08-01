@@ -8,6 +8,7 @@ import csv
 import os
 
 CONNECTIONS = 100
+WHOIS_COUNT = 0
 
 # connect to RDAP
 if not whoisit.is_bootstrapped():
@@ -65,8 +66,8 @@ def main():
                     print(str(type(exc)))
                 finally:
                     out_rows.append(data)
-
-        print(f"--- Validated Batch Num {count_batches} Completed in {time.time() - batch_time} seconds ---")
+        if verbose:
+            print(f"--- Validated Batch Num {count_batches} Completed in {time.time() - batch_time} seconds ---")
         count_batches += 1
 
         # save subdomains worked to file
@@ -75,6 +76,8 @@ def main():
 
     # yay we validated all the subdomains!
     print(f"--- Validated subdomains Completed in {time.time() - start_time} seconds ---")
+    if verbose:
+        print(f"total RDAP whois queries: {WHOIS_COUNT}")
 
 def read_in_wordlist(filepath):
     """Reads in subdomain wordllist
@@ -116,8 +119,20 @@ def query_dns(subdomain):
     cname = get_cname(subdomain)
     
     if not cname == "cname not found":
-        # check for hijackable cname domain
-        registered = get_whois(cname)
+        cname_parts = cname.split(".")
+        cname_domain = f"{cname_parts[-2].strip()}.{cname_parts[-1].strip()}"
+        subdomain_parts = subdomain.split(".")
+        domain_name = f"{subdomain_parts[-2].strip()}.{subdomain_parts[-1].strip()}"
+
+        if not cname_domain == domain_name:
+            # check for hijackable cname domain
+            registered = get_whois(cname)
+            global WHOIS_COUNT 
+            WHOIS_COUNT += 1
+        else:
+            # cname's domain matches previous domain
+            registered = "Yes"
+            hijackable = "No"
     
     else:
         # no cname record.. can't be hijacked then
