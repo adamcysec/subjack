@@ -6,9 +6,15 @@ import dns.resolver
 import whoisit
 import csv
 import os
+import json
+import requests
 
 CONNECTIONS = 100
 WHOIS_COUNT = 0
+HIGHJACK_COUNT = 0
+SERVICE_COUNT = 0
+SERVICES = []
+SERVICES_LIST = []
 
 # connect to RDAP
 if not whoisit.is_bootstrapped():
@@ -26,8 +32,9 @@ def get_args():
         ''')
     )
 
-    parser.add_argument('-f', '--filepath', action='store', type=str, required=True, help="wordlist file path")
+    parser.add_argument('-w', '--wordlist', action='store', type=str, required=True, help="wordlist file path")
     parser.add_argument('-o', '--outfile', action='store', type=str, required=False, default="results.csv", help="file name to output")
+    parser.add_argument('-f', '--fingerprints', action='store', type=str, required=False, default="fingerprints.json", help="fingerprints.json file path")
     parser.add_argument('-v', '--verbose', action='store_true', required=False, help="print verbose output")
 
     args = parser.parse_args() # parse arguments
@@ -40,11 +47,18 @@ def main():
     start_time = time.time()
 
     args = get_args()
-    input_file =  args['filepath']
+    input_file =  args['wordlist']
     out_file = args['outfile']
+    fingerprints_file = args['fingerprints']
     verbose = args['verbose']
 
     wordlist = read_in_wordlist(input_file)
+    fingerprints_dict = read_in_fingerprints(fingerprints_file)
+    global SERVICES_LIST
+    SERVICES_LIST = fingerprints_dict
+    services = [x['service'] for x in fingerprints_dict]
+    global SERVICES
+    SERVICES = services
 
     out_rows = []
     word_num_subdomains = 10000 # the number of subdomains to work at one time
@@ -78,6 +92,8 @@ def main():
     print(f"--- Validated subdomains Completed in {time.time() - start_time} seconds ---")
     if verbose:
         print(f"total RDAP whois queries: {WHOIS_COUNT}")
+        print(f"total services found: {SERVICE_COUNT}")
+        print(f"total hijackable: {HIGHJACK_COUNT}")
 
 def read_in_wordlist(filepath):
     """Reads in subdomain wordllist
@@ -102,6 +118,25 @@ def read_in_wordlist(filepath):
     
     return wordlist
 
+def read_in_fingerprints(filepath):
+    """Reads in fingerprints.json
+
+    Parameters:
+    -----------
+    filepath : str
+        file path to fingerprints.json
+
+    Returns:
+    --------
+    finger_prints : list
+        contains dict of finger prints
+    """
+
+    with open(filepath, 'r') as json_file:
+        finger_prints =  json.load(json_file)
+    
+    return finger_prints
+
 def query_dns(subdomain):
     """Determin if a subdomain is hijackable from DNS queries
 
@@ -116,19 +151,36 @@ def query_dns(subdomain):
         hijackable meta data
     """
 
+    global WHOIS_COUNT
+    global HIGHJACK_COUNT
+    global SERVICE_COUNT
+    global SERVICES_LIST
+    global SERVICES
+
     cname = get_cname(subdomain)
     
     if not cname == "cname not found":
         cname_parts = cname.split(".")
-        cname_domain = f"{cname_parts[-2].strip()}.{cname_parts[-1].strip()}"
         subdomain_parts = subdomain.split(".")
-        domain_name = f"{subdomain_parts[-2].strip()}.{subdomain_parts[-1].strip()}"
-
+        
+        cname_domain = f"{cname_parts[-2].strip()}"
+        domain_name = f"{subdomain_parts[-2].strip()}"
+       
         if not cname_domain == domain_name:
-            # check for hijackable cname domain
-            registered = get_whois(cname)
-            global WHOIS_COUNT 
-            WHOIS_COUNT += 1
+            if cname_domain in SERVICES:
+                # service found
+                SERVICE_COUNT +=1
+                finger_print = [x['fingerprint'] for x in SERVICES_LIST if x['service'] == cname_domain][0][0]
+                response_text = get_request(f"https://{cname}")
+                if finger_print in response_text:
+                    # service domain not registered.. possibly hijackable
+                    registered = "Service"
+                    hijackable = "Yes"
+                    HIGHJACK_COUNT += 1
+            else:
+                # check for hijackable cname domain
+                registered = get_whois(cname)
+                WHOIS_COUNT +=1
         else:
             # cname's domain matches previous domain
             registered = "Yes"
@@ -147,6 +199,7 @@ def query_dns(subdomain):
     elif registered == "No":
         # cname is not registered.. hijackable
         hijackable = "Yes"
+        HIGHJACK_COUNT += 1
     
     data = {'subdomain': subdomain, 'cname': cname, 'cname_registered': registered, 'hijackable': hijackable}
     
@@ -175,7 +228,7 @@ def get_cname(domain):
         
     except Exception as e:
         cname = "cname not found"
-        
+
     return cname
 
 def get_whois(domain):
@@ -208,6 +261,25 @@ def get_whois(domain):
         registered = "No"
 
     return registered
+
+def get_request(url):
+    """Returns GET response text
+
+    Parameter:
+    ----------
+    url : str
+        https url
+
+    Returns:
+    --------
+    text : str
+        webpage content
+    """
+
+    response = requests.get(url, allow_redirects=True)
+    text = response.text
+
+    return text
 
 def save_worked_urls(data, file_name, verbose):
     """Saves validated pypi urls to file
