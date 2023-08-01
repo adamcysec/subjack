@@ -55,7 +55,7 @@ dev2.twitter.com
 
 ## Usage
 
-**Parameter --filepath, -f**
+**Parameter --wordlist, -w**
 - type : str
 - filepath to wordlist
 - required : true
@@ -63,6 +63,11 @@ dev2.twitter.com
 **Parameter --outfile, -o**
 - type : str
 - file name to output
+
+**Parameter --fingerprints, -f**
+- type : str
+- file path to fingerprint.json
+- default : relative import from project dir
 
 **Parameter --verbose, -v**
 - type : bool
@@ -73,20 +78,28 @@ dev2.twitter.com
 
 **Example 1**
 
-`py subjack.py -f "wordlist.txt`
+`py subjack.py -w "wordlist.txt`
 
 - outputs results.csv
 
 **Example 2**
 
-`py subjack.py -f "wordlist.txt" -v`
+`py subjack.py -w "wordlist.txt" -v`
 
 - verbose domain data is saved
 - outputs results.csv
 
 **Example 3**
 
-`py subjack.py -f "wordlist.txt" -o "results_02.csv" -v`
+`py subjack.py -w "wordlist.txt" -o "results_02.csv" -v`
 
+- verbose domain data is saved
+- outputs results_02.csv
+
+**Example 4**
+
+`py subjack.py -f "wordlist.txt" -o "results_02.csv" -f "C:\Users\adamd\Downloads\fingerprints.json" -v`
+
+- Uses fingerprints.json from another directory
 - verbose domain data is saved
 - outputs results_02.csv
