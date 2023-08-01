@@ -162,15 +162,16 @@ def query_dns(subdomain):
     if not cname == "cname not found":
         cname_parts = cname.split(".")
         subdomain_parts = subdomain.split(".")
+        cname_domain = f"{cname_parts[-2].strip()}.{cname_parts[-1].strip()}"
+        cname_domain_name = f"{cname_parts[-2].strip()}"
+        domain_name = f"{subdomain_parts[-2].strip()}.{cname_parts[-1].strip()}"
         
-        cname_domain = f"{cname_parts[-2].strip()}"
-        domain_name = f"{subdomain_parts[-2].strip()}"
        
         if not cname_domain == domain_name:
-            if cname_domain in SERVICES:
+            if cname_domain_name in SERVICES:
                 # service found
                 SERVICE_COUNT +=1
-                finger_print = [x['fingerprint'] for x in SERVICES_LIST if x['service'] == cname_domain][0][0]
+                finger_print = [x['fingerprint'] for x in SERVICES_LIST if x['service'] == cname_domain_name][0][0]
                 response_text = get_request(f"https://{cname}")
                 if finger_print in response_text:
                     # service domain not registered.. possibly hijackable
@@ -228,7 +229,7 @@ def get_cname(domain):
         
     except Exception as e:
         cname = "cname not found"
-
+    
     return cname
 
 def get_whois(domain):
