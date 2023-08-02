@@ -69,6 +69,10 @@ dev2.twitter.com
 - file path to fingerprint.json
 - default : relative import from project dir
 
+**Parameter --cname, -c**
+- type : bool
+- save all subdomains with a CNAME record
+
 **Parameter --verbose, -v**
 - type : bool
 - save verbose domain meta data to file
@@ -102,4 +106,11 @@ dev2.twitter.com
 
 - Uses fingerprints.json from another directory
 - verbose domain data is saved
+- outputs results_02.csv
+
+**Example 5**
+
+`py subjack.py -f "wordlist.txt" -o "results_02.csv" -c`
+
+- All subdomains with a CNAME record is saved regardless of hijackable status
 - outputs results_02.csv
