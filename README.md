@@ -19,6 +19,8 @@ If a CNAME record exists for the given subdomain, then the CNAME is checked for 
 > **Subjack.py by default will only output subdomains found to be hijackable.**
 >
 > **Use verbose output to save all subdomain meta data regardless of it's hijackable status.**
+>
+> **Or use cname output to save all subdomains with a CNAME record regardless of it's hijackable status.**
 
 Subjack.py uses the concurrent module to make quick work of the wordlist.
 
