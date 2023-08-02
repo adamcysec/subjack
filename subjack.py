@@ -29,12 +29,14 @@ def get_args():
         py subjack.py -f "wordlist.txt"
         py subjack.py -f "wordlist.txt" -v
         py subjack.py -f "wordlist.txt" -o "results_02.csv" -v
+        py subjack.py -f "wordlist.txt" -o "results_02.csv" -c
         ''')
     )
 
     parser.add_argument('-w', '--wordlist', action='store', type=str, required=True, help="wordlist file path")
     parser.add_argument('-o', '--outfile', action='store', type=str, required=False, default="results.csv", help="file name to output")
     parser.add_argument('-f', '--fingerprints', action='store', type=str, required=False, default="fingerprints.json", help="fingerprints.json file path")
+    parser.add_argument('-c', '--cname', action='store_true', required=False, help="flag when set will only output subdomains with CNAMEs")
     parser.add_argument('-v', '--verbose', action='store_true', required=False, help="print verbose output")
 
     args = parser.parse_args() # parse arguments
@@ -51,6 +53,7 @@ def main():
     out_file = args['outfile']
     fingerprints_file = args['fingerprints']
     verbose = args['verbose']
+    only_cname = args['cname']
 
     wordlist = read_in_wordlist(input_file)
     fingerprints_dict = read_in_fingerprints(fingerprints_file)
@@ -85,7 +88,7 @@ def main():
         count_batches += 1
 
         # save subdomains worked to file
-        save_worked_urls(out_rows, out_file, verbose)
+        save_worked_urls(out_rows, out_file, verbose, only_cname)
         out_rows = []
 
     # yay we validated all the subdomains!
@@ -282,7 +285,7 @@ def get_request(url):
 
     return text
 
-def save_worked_urls(data, file_name, verbose):
+def save_worked_urls(data, file_name, verbose, only_cname):
     """Saves validated pypi urls to file
 
     Keeps track of urls worked to prevent double work 
@@ -295,18 +298,29 @@ def save_worked_urls(data, file_name, verbose):
     file_name : str
         file name to output
     verbose : bool
-        True : ouput only hijackable subdomains
-        False : output all subdomains meta data 
+        True : output all subdomains meta data 
+        False : ouput only hijackable subdomains 
+    only_cname : bool
+        True : output only subdomains with a CNAME record
     """
+
+    out_data = []
     
-    # check verbose settings
-    if not verbose:
-        out_data = []
+    if only_cname:
+        # output all subdomain's with a CNAME
+        for record in data:
+            if record['cname'] != "cname not found":
+                out_data.append(record)
+    
+    elif verbose:
+        # outpout all domain data
+        out_data = data
+
+    else:
+        # output only hijackable domains
         for record in data:
             if record['hijackable'] == "Yes":
                 out_data.append(record)
-    else:
-        out_data = data
 
     file_exists = os.path.exists(file_name)
     field_names = ['subdomain', 'cname', 'cname_registered', 'hijackable']
