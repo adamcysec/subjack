@@ -57,7 +57,7 @@ dev2.twitter.com
 
 **Parameter --wordlist, -w**
 - type : str
-- filepath to wordlist
+- file path to wordlist
 - required : true
 
 **Parameter --outfile, -o**
